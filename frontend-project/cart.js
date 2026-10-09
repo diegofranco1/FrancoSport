@@ -42,9 +42,10 @@ async function fetchCart() {
           <img src="${product.url}" class="img-fluid" style="width: 100px; height: 100px; object-fit: cover;" alt="${product.name}">
           <div class="ms-3">
             <h5 class="card-title">${product.name}</h5>
+            <p><strong>Talla:</strong> ${product.size}</p>
             <p><strong>Unidades:</strong> ${product.quantity}</p>
             <p><strong>Subtotal:</strong> ${formatCLP(product.total_price)}</p>
-            <button class="btn btn-danger btn-sm delete-product-btn" data-product-id="${product.id}">Eliminar</button>
+            <button class="btn btn-danger btn-sm delete-product-btn" data-product-id="${product.id}" data-product-size="${product.size}">Eliminar</button>
           </div>
         </div>
       `;
@@ -69,15 +70,16 @@ async function fetchCart() {
     document.querySelectorAll('.delete-product-btn').forEach(button => {
       button.addEventListener('click', function () {
         const productId = this.getAttribute('data-product-id');
+        const productSize = this.getAttribute('data-product-size');
         console.log('ID del producto seleccionado:', productId);
-        deleteProductFromCart(productId);
+        deleteProductFromCart(productId, productSize);
       });
     });
   }
 
-  async function deleteProductFromCart(productId) {
-    if (!productId) {
-      console.error("ID del producto no proporcionado.");
+  async function deleteProductFromCart(productId, productSize) {
+    if (!productId || !productSize) {
+      console.error('No se proporcionaron el ID y la talla del producto.');
       showToast('No pudimos identificar el producto que quieres eliminar.', 'error');
       return;
     }
@@ -98,7 +100,7 @@ async function fetchCart() {
     }
 
     try {
-      const response = await fetch(`/api/cart/${numericProductId}`, {
+      const response = await fetch(`/api/cart/${numericProductId}/${encodeURIComponent(productSize)}`, {
         method: 'DELETE',
         credentials: 'include',
       });

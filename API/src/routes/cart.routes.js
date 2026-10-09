@@ -42,7 +42,42 @@ router.post('/buy', authenticateUser, asyncHandler(async (req, res) => {
 
 router.post('/cart/add', asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { product_id: productId, quantity } = req.body;
+  const { product_id: productId, quantity, size } = req.body;
+  const productIdNumber = Number(productId);
+  const requestedQuantity = Number(quantity);
+  const allowedSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+  if (!Number.isInteger(productIdNumber) || productIdNumber < 1) {
+    return res.status(400).json({ error: 'El producto seleccionado no es válido.' });
+  }
+  if (!Number.isInteger(requestedQuantity) || requestedQuantity < 1) {
+    return res.status(400).json({ error: 'La cantidad debe ser un número entero mayor que cero.' });
+  }
+  if (!allowedSizes.includes(size)) {
+    return res.status(400).json({ error: 'Selecciona una talla válida.' });
+  }
+
+  const inventory = await sql(
+    `SELECT ps.stock,
+            COALESCE(SUM(ci.quantity), 0)::integer AS cart_quantity
+     FROM product_sizes AS ps
+     LEFT JOIN cart_item AS ci
+       ON ci.product_id = ps.product_id
+       AND ci.size = ps.size
+       AND ci.cart_id IN (SELECT id FROM cart WHERE user_id = $1)
+     WHERE ps.product_id = $2 AND ps.size = $3
+     GROUP BY ps.stock`,
+    [userId, productIdNumber, size],
+  );
+  if (!inventory.length) {
+    return res.status(404).json({ error: 'No encontramos esa talla para el producto.' });
+  }
+  if (requestedQuantity + Number(inventory[0].cart_quantity) > Number(inventory[0].stock)) {
+    return res.status(409).json({
+      error: `No hay suficientes unidades en talla ${size}. Stock disponible: ${inventory[0].stock}.`,
+    });
+  }
+
   const carts = await sql('SELECT id FROM cart WHERE user_id=$1', [userId]);
   let cartId = carts[0]?.id;
 
@@ -52,8 +87,8 @@ router.post('/cart/add', asyncHandler(async (req, res) => {
   }
 
   await sql(
-    'INSERT INTO cart_item (cart_id, product_id, quantity) VALUES ($1, $2, $3)',
-    [cartId, productId, quantity],
+    'INSERT INTO cart_item (cart_id, product_id, quantity, size) VALUES ($1, $2, $3, $4)',
+    [cartId, productIdNumber, requestedQuantity, size],
   );
   res.json({ message: 'Producto agregado al carro.' });
 }));
@@ -61,9 +96,11 @@ router.post('/cart/add', asyncHandler(async (req, res) => {
 router.get('/cart', asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const products = await sql(
-    `SELECT p.id, p.name, p.price, p.url, ci.quantity, (ci.quantity*p.price) AS total_price
+    `SELECT p.id, p.name, p.price, p.url, ci.size, ci.quantity,
+            (ci.quantity*p.price) AS total_price
      FROM cart_item ci
      JOIN products p ON ci.product_id = p.id
+     JOIN product_sizes ps ON ps.product_id = ci.product_id AND ps.size = ci.size
      JOIN cart c ON ci.cart_id = c.id
      WHERE c.user_id = $1`,
     [userId],
@@ -92,6 +129,16 @@ router.delete('/cart/:productId', asyncHandler(async (req, res) => {
   await sql(
     'DELETE FROM cart_item WHERE product_id = $1 AND cart_id = (SELECT id FROM cart WHERE user_id = $2)',
     [req.params.productId, req.user.id],
+  );
+  res.json({ message: 'Producto eliminado del carro.' });
+}));
+
+router.delete('/cart/:productId/:size', asyncHandler(async (req, res) => {
+  await sql(
+    `DELETE FROM cart_item
+     WHERE product_id = $1 AND size = $2
+       AND cart_id = (SELECT id FROM cart WHERE user_id = $3)`,
+    [req.params.productId, req.params.size, req.user.id],
   );
   res.json({ message: 'Producto eliminado del carro.' });
 }));

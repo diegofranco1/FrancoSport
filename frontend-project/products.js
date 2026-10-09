@@ -14,24 +14,34 @@ function renderProduct(product) {
   const card = document.createElement('article');
   card.className = 'card h-100';
 
+  const productUrl = `/product.html?id=${encodeURIComponent(product.id)}`;
+  const imageLink = document.createElement('a');
+  imageLink.href = productUrl;
+  imageLink.setAttribute('aria-label', `Ver detalles de ${product.name}`);
+
   const image = document.createElement('img');
   image.src = product.url;
   image.alt = product.name;
   image.className = 'card-img-top';
-  card.appendChild(image);
+  imageLink.appendChild(image);
+  card.appendChild(imageLink);
 
   const body = document.createElement('div');
   body.className = 'card-body d-flex flex-column';
 
   const name = document.createElement('h3');
   name.className = 'card-title';
-  name.textContent = product.name;
+  const nameLink = document.createElement('a');
+  nameLink.href = productUrl;
+  nameLink.textContent = product.name;
+  nameLink.className = 'product-card-link';
+  name.appendChild(nameLink);
   body.appendChild(name);
 
   const stock = Number(product.stock) || 0;
   const stockText = document.createElement('p');
   stockText.className = 'card-text';
-  stockText.textContent = stock > 0 ? `${stock} disponibles` : 'Agotado';
+  stockText.textContent = stock > 0 ? `${stock} unidades disponibles` : 'Agotado';
   body.appendChild(stockText);
 
   const price = document.createElement('p');
@@ -39,45 +49,12 @@ function renderProduct(product) {
   price.textContent = formatCLP(product.price);
   body.appendChild(price);
 
-  const form = document.createElement('form');
-  form.className = 'add-to-cart-form mt-auto';
-  form.dataset.productId = product.id;
+  const detailsLink = document.createElement('a');
+  detailsLink.href = productUrl;
+  detailsLink.className = 'btn btn-primary w-100 mt-auto';
+  detailsLink.textContent = 'Ver producto y tallas';
 
-  const quantityGroup = document.createElement('div');
-  quantityGroup.className = 'd-flex align-items-center gap-2 mb-3';
-
-  const quantityLabel = document.createElement('label');
-  quantityLabel.htmlFor = `quantity-${product.id}`;
-  quantityLabel.className = 'form-label mb-0';
-  quantityLabel.textContent = 'Unidades';
-
-  const quantityInput = document.createElement('input');
-  quantityInput.type = 'number';
-  quantityInput.id = `quantity-${product.id}`;
-  quantityInput.name = 'quantity';
-  quantityInput.value = '1';
-  quantityInput.min = '1';
-  quantityInput.max = String(stock);
-  quantityInput.required = true;
-  quantityInput.className = 'form-control';
-  quantityInput.style.maxWidth = '90px';
-
-  quantityGroup.append(quantityLabel, quantityInput);
-  form.appendChild(quantityGroup);
-
-  const addButton = document.createElement('button');
-  addButton.type = 'submit';
-  addButton.className = 'btn btn-primary w-100';
-  addButton.textContent = stock > 0 ? 'Agregar al carro' : 'Agotado';
-  addButton.disabled = stock <= 0;
-  form.appendChild(addButton);
-
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    addToCart(form.dataset.productId, quantityInput.value);
-  });
-
-  body.appendChild(form);
+  body.appendChild(detailsLink);
   card.appendChild(body);
   column.appendChild(card);
   productList.appendChild(column);
@@ -109,28 +86,3 @@ async function fetchProducts() {
 }
 
 fetchProducts();
-
-async function addToCart(productId, quantity) {
-  try {
-    const response = await fetch('/api/cart/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ product_id: productId, quantity: parseInt(quantity) }),
-      credentials: 'include'
-    });
-
-    if (response.status === 401) {
-      redirectToLogin();
-      return;
-    }
-    if (!response.ok) throw new Error(`Error en la solicitud: ${response.status}`);
-
-    const data = await response.json();
-    showToast(data.message || 'Producto agregado al carro.');
-  } catch (error) {
-    console.error('Error al agregar al carro:', error);
-    showToast('No pudimos agregar el producto. Intenta nuevamente.', 'error');
-  }
-}
