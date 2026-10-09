@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <title>Franco Sport</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+  </head>
+  <body class="d-flex flex-column min-vh-100">
+
+    <nav class="navbar navbar-expand-lg">
+      <div class="container">
+        <a class="navbar-brand" href="/" aria-label="Franco Sport, inicio"><h1>Franco Sport</h1></a>
+        <div class="navbar-actions">
+          <a class="btn-custom" href="/cart.html" aria-label="Ver carro de compras" title="Carro de compras"><i class="bi bi-cart3"></i></a>
+          <a class="btn-custom" href="/profile.html" aria-label="Ver mi cuenta" title="Mi cuenta"><i class="bi bi-person"></i></a>
+        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Abrir menú">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+            <li class="nav-item"><a class="nav-link" href="/#catalogo">Camisetas de fútbol</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <main class="container auth-page">
+      <section class="card auth-card">
+        <div class="auth-card-heading">
+          <span class="store-eyebrow">Bienvenido a Franco Sport</span>
+          <h2>Crear una cuenta</h2>
+          <p>Súmate a Franco Sport y guarda tus productos para comprarlos cuando quieras.</p>
+        </div>
+        <form id="signupForm" class="auth-form">
+          <div class="mb-3">
+            <label for="exampleInputName1" class="form-label">Nombre y apellido</label>
+            <input type="text" class="form-control" id="exampleInputName1" name="name" autocomplete="name" minlength="3" maxlength="100" required>
+            <div class="form-text">Escribe tu nombre y al menos un apellido.</div>
+          </div>
+          <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Correo electrónico</label>
+            <input type="email" class="form-control" id="exampleInputEmail1" name="email" autocomplete="email" maxlength="254" required>
+            <div class="form-text">Te enviaremos un enlace para confirmar tu correo.</div>
+          </div>
+          <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Contraseña segura</label>
+            <input type="password" class="form-control" id="exampleInputPassword1" name="password" autocomplete="new-password" minlength="12" maxlength="128" aria-describedby="passwordHelp" required>
+            <div class="form-text" id="passwordHelp">Mínimo 12 caracteres, con mayúscula, minúscula, número y símbolo.</div>
+          </div>
+          <div class="form-feedback" id="signup-feedback" role="status" aria-live="polite" hidden></div>
+          <button type="submit" class="btn btn-primary auth-submit">Crear cuenta</button>
+        </form>
+        <p class="auth-switch">¿Ya tienes cuenta? <a href="/login.html">Inicia sesión</a></p>
+      </section>
+    </main>
+
+    <script src="signup.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <footer class="bg-dark text-white text-center py-3 mt-auto">
+      <p><i class="bi bi-c-circle"></i> 2026 FrancoSport. Todos los derechos reservados.</p>
+    </footer>
+ </body>
+</html>

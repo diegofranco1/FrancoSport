@@ -1,0 +1,13 @@
+# Dependencies and local environment
+**/node_modules/
+**/.env
+**/.env.*
+!**/.env.example
+
+# Local/editor and operating-system files
+**/.vscode/
+**/.DS_Store
+**/__MACOSX/
+
+# Local archive bundled with the API folder
+/API/Archivo.zip
